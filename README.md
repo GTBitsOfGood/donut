@@ -21,7 +21,7 @@ yarn start
 yarn local 
 ```
 
-The second command will give you a URL that tunnels HTTP requests to your local device. Copy this URL and paste it into the following bot configuration links:
+The second command will give you a URL that tunnels HTTP requests to your local device. Copy this URL and paste it into the app manifest everywhere you see a URL:
 
 Now, Slack should be listening to requests and sending those to your local device.
 
@@ -53,19 +53,20 @@ MongoDB (CosmosDB on Azure) database backend. No Mongoose used, only pure mongod
 * `jobs`: The outstanding pairing messages that have yet to be resolved
     * `_id`
     * `workspaceId`: id of the workspace
-    * `messageId`: id of the original pairing message sent
+    * `messageTimestamp`: timestamp of the original pairing message sent, used for slack's API
     * `channelId`: id of the channel the original pairing message was sent in
+    * `pairingDate`: date which pairings for this job will be made.
 
 
 ## Functions:
 
 ### pollChannels (TimerTrigger)
 
-This function triggers daily at 9am EST. This will send a message into all of the channels who are scheduled for donut dates during this time. A job will be created, noting down the id of the message.
+This function triggers daily at 9am EST. This will send a message into all of the channels who are scheduled for donut dates during this time. A job will be created, noting down the id of the message. The nextPollingDates are updated to reflect the next polling day.
 
 Additionally, this function will query for all outstanding jobs, checking to see who reacted to the pairing message and sending a message of the created pairs into the channel.
 
-The job is then deleted off the database.
+The jobs for that day are then deleted off the database.
 
 ### slack (HTTP Trigger)
 
@@ -75,7 +76,8 @@ There are only a number of things that we need to listen to currently:
 
 1. Adding the bot into a channel: This will register the bot and create a document in the channels collection. Sends a message acknowledging or not acknowledging successful registration.
 2. Removing the bot from a channel: This is the opposite of (1). This removes the channel from the db, eliminates all jobs, and sends a message acknowledging successful removal.
-3. Home modal interaction: This will be where the configuration for each of the channels will exist. Whenever someone opens the home modal, we must send back a response that paints the correct modals.
+3. Home modal interaction: This will be where instructions for bot use need to be made.
+4. /date-config: This slash command configures a date bot for the given channel it is called in.
 
 ## Future Expansions
 
