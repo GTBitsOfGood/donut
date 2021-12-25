@@ -44,10 +44,11 @@ MongoDB (CosmosDB on Azure) database backend. No Mongoose used, only pure mongod
 * `channels`: The channels that the bot is registered in
     * `_id`
     * `workspaceId`: slack id of the workspace
-    * `channelId`: slack id of the channel.
+    * `channelId`: slack id of the channel
     * `pollingDay`: day to poll pairings
     * `pairingDay`: day to pair people
-    * `endDate`: date to stop pairings
+    * `nextPollingDate`: date for next day of polls
+    * `endDate`: date to stop polling
     * `frequency`: number representing weeks between pairings in this channel (i.e. 1 represents weekly pairings, 2 represents biweekly, etc.)
 * `jobs`: The outstanding pairing messages that have yet to be resolved
     * `_id`

@@ -8,7 +8,10 @@
     "local": "ngrok http 8080"
   },
   "dependencies": {
-    "azure-functions-core-tools": "3"
+    "@slack/bolt": "^3.8.1",
+    "azure-functions-core-tools": "3",
+    "dotenv": "^10.0.0",
+    "mongodb": "^4.2.2"
   },
   "devDependencies": {
     "ngrok": "^4.2.2"
