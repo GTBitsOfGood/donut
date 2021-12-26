@@ -10,6 +10,7 @@ const azureReceiver = new AzureReceiver({
 
 const app = new App({
     token: config.slack.botToken,
+    signingSecret: config.slack.signingSecret,
     receiver: azureReceiver,
 })
 
