@@ -1,20 +1,10 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const logger_1 = require("@slack/logger");
-const querystring_1 = __importDefault(require("querystring"));
-const crypto_1 = __importDefault(require("crypto"));
-const tsscmp_1 = __importDefault(require("tsscmp"));
+const crypto_1 = require("crypto");
+const tsscmp_1 = require("tsscmp");
 const errors_1 = require("@slack/bolt");
 /*
- * todo: refactor for azure functions
- * Receiver implementation for AWS API Gateway + Lambda apps
- *
- * Note that this receiver does not support Slack OAuth flow.
- * For OAuth flow endpoints, deploy another Lambda function built with ExpressReceiver.
+ * Receiver implementation for Azure functions apps
  */
 class AzureReceiver {
     constructor({ signingSecret, logger = undefined, logLevel = logger_1.LogLevel.INFO, customPropertiesExtractor = (_) => ({}), }) {
@@ -48,11 +38,10 @@ class AzureReceiver {
         });
     }
     toHandler() {
-        return async (awsEvent, _awsContext, _awsCallback) => {
+        return async (azureRequest) => {
             var _a;
-            this.logger.debug(`AWS event: ${JSON.stringify(awsEvent, null, 2)}`);
-            const rawBody = this.getRawBody(awsEvent);
-            const body = this.parseRequestBody(rawBody, this.getHeaderValue(awsEvent.headers, 'Content-Type'), this.logger);
+            this.logger.debug(`Azure event: ${JSON.stringify(azureRequest, null, 2)}`);
+            const { body, rawBody } = azureRequest
             // ssl_check (for Slash Commands)
             if (typeof body !== 'undefined' &&
                 body != null &&
@@ -61,8 +50,8 @@ class AzureReceiver {
                 return Promise.resolve({ statusCode: 200, body: '' });
             }
             // request signature verification
-            const signature = this.getHeaderValue(awsEvent.headers, 'X-Slack-Signature');
-            const ts = Number(this.getHeaderValue(awsEvent.headers, 'X-Slack-Request-Timestamp'));
+            const signature = this.getHeaderValue(azureRequest.headers, 'X-Slack-Signature');
+            const ts = Number(this.getHeaderValue(azureRequest.headers, 'X-Slack-Request-Timestamp'));
             if (!this.isValidRequestSignature(this.signingSecret, rawBody, signature, ts)) {
                 return Promise.resolve({ statusCode: 401, body: '' });
             }
@@ -102,9 +91,9 @@ class AzureReceiver {
                         storedResponse = response;
                     }
                 },
-                retryNum: this.getHeaderValue(awsEvent.headers, 'X-Slack-Retry-Num'),
-                retryReason: this.getHeaderValue(awsEvent.headers, 'X-Slack-Retry-Reason'),
-                customProperties: this.customPropertiesExtractor(awsEvent),
+                retryNum: this.getHeaderValue(azureRequest.headers, 'X-Slack-Retry-Num'),
+                retryReason: this.getHeaderValue(azureRequest.headers, 'X-Slack-Retry-Reason'),
+                customProperties: this.customPropertiesExtractor(azureRequest),
             };
             // Send the event to the app for processing
             try {
@@ -129,35 +118,6 @@ class AzureReceiver {
         };
     }
     // eslint-disable-next-line class-methods-use-this
-    getRawBody(awsEvent) {
-        if (typeof awsEvent.body === 'undefined' || awsEvent.body == null) {
-            return '';
-        }
-        return awsEvent.rawBody;
-    }
-    // eslint-disable-next-line class-methods-use-this
-    parseRequestBody(stringBody, contentType, logger) {
-        if (contentType === 'application/x-www-form-urlencoded') {
-            const parsedBody = querystring_1.default.parse(stringBody);
-            if (typeof parsedBody.payload === 'string') {
-                return JSON.parse(parsedBody.payload);
-            }
-            return parsedBody;
-        }
-        if (contentType === 'application/json') {
-            return JSON.parse(stringBody);
-        }
-        logger.warn(`Unexpected content-type detected: ${contentType}`);
-        try {
-            // Parse this body anyway
-            return JSON.parse(stringBody);
-        }
-        catch (e) {
-            logger.error(`Failed to parse body as JSON data for content-type: ${contentType}`);
-            throw e;
-        }
-    }
-    // eslint-disable-next-line class-methods-use-this
     isValidRequestSignature(signingSecret, body, signature, requestTimestamp) {
         if (!signature || !requestTimestamp) {
             return false;
@@ -168,10 +128,10 @@ class AzureReceiver {
         if (requestTimestamp < fiveMinutesAgo) {
             return false;
         }
-        const hmac = crypto_1.default.createHmac('sha256', signingSecret);
+        const hmac = crypto_1.createHmac('sha256', signingSecret);
         const [version, hash] = signature.split('=');
         hmac.update(`${version}:${requestTimestamp}:${body}`);
-        if (!(0, tsscmp_1.default)(hash, hmac.digest('hex'))) {
+        if (!(0, tsscmp_1)(hash, hmac.digest('hex'))) {
             return false;
         }
         return true;
@@ -186,4 +146,3 @@ class AzureReceiver {
 module.exports = {
     AzureReceiver: AzureReceiver
 };
-//# sourceMappingURL=AwsLambdaReceiver.js.map

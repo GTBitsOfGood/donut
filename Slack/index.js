@@ -96,6 +96,6 @@ app.event('app_home_opened', async ({ event, client, logger }) => {
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
     const handler = await azureReceiver.start()
-    const res = await handler(req, undefined, undefined)
+    const res = await handler(req)
     context.res = res;
 }
