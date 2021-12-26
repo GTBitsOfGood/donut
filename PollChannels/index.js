@@ -75,7 +75,8 @@ module.exports = async function (context, myTimer) {
             text,
         })
     })
-    const ack = await deleteTodaysJobs()
+
+    const ack = await deleteTodaysJobs(cleanedDay)
 
     
     if (myTimer.isPastDue)

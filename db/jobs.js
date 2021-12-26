@@ -18,7 +18,7 @@ const findJobsToBePaired = async day => {
     return result
 }
 
-const deleteTodaysJobs = async day => {
+const deleteTodaysJobs = async (day = new Date()) => {
     const db = await mongo()
     const cleanedDay = new Date(day.toISOString().split('T')[0]);
     const { acknowledged } = await db.collection('jobs').deleteMany({ pairingDate: cleanedDay })
