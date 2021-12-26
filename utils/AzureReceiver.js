@@ -131,7 +131,7 @@ class AzureReceiver {
         const hmac = crypto_1.createHmac('sha256', signingSecret);
         const [version, hash] = signature.split('=');
         hmac.update(`${version}:${requestTimestamp}:${body}`);
-        if (!(0, tsscmp_1)(hash, hmac.digest('hex'))) {
+        if (!tsscmp_1(hash, hmac.digest('hex'))) {
             return false;
         }
         return true;
