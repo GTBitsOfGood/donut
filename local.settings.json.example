@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "DB_NAME":"dater",
+    "DB_URI":"mongodb://localhost:27017",
+    "SLACK_BOT_TOKEN":"",
+    "SLACK_SIGNING_SECRET":"",
+    "SLACK_APP_ID":""
+  }
+}
