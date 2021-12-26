@@ -4,21 +4,20 @@ Azure Functions implementation of a Bits of Good Slackbot, managing donut dates.
 
 ## Setup / Contributing
 
-Node 14 recommended. Install packages first. Local mongodb with docker recommended.
+Node 14 recommended. NPM over yarn as Functions depends on package-lock. Install packages first. Local mongodb with docker recommended.
 
 ```
-npm install -g yarn
-yarn
+npm install
 ```
 
 To set up a local development environment, we must tunnel slack channels into our local device. If you're using VSCode, open up two terminals, one to start the Azure Functions, and the other to expose our local machine to an internet URL.
 
 ```
-yarn start
+npm run start
 ```
 
 ```
-yarn local 
+npm local 
 ```
 
 The second command will give you a URL that tunnels HTTP requests to your local device. Copy this URL and paste it into the app manifest everywhere you see a URL:
@@ -26,6 +25,8 @@ The second command will give you a URL that tunnels HTTP requests to your local 
 Now, Slack should be listening to requests and sending those to your local device.
 
 It is best to keep all testing onto a separate test free Slack channel, so the H4I Slack remains non-buggy.
+
+Make a copy of the local.settings.json file and fill in the empty fields with the proper Slack env variables, found on the bot page. These variables are automatically loaded into the environment on launch.
 
 ## Directory Layout
 
@@ -36,6 +37,7 @@ Other directories:
 * db: The database. See database below for more information
 * .vscode: azure in vscode setup
 * .github: pipelines
+* util: AzureReceiver, env loading, and random functions
 
 ## Database
 
