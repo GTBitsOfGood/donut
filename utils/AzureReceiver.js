@@ -1,5 +1,6 @@
 "use strict";
 const logger_1 = require("@slack/logger");
+const querystring_1 = require("querystring");
 const crypto_1 = require("crypto");
 const tsscmp_1 = require("tsscmp");
 const errors_1 = require("@slack/bolt");
@@ -41,7 +42,8 @@ class AzureReceiver {
         return async (azureRequest) => {
             var _a;
             this.logger.debug(`Azure event: ${JSON.stringify(azureRequest, null, 2)}`);
-            const { body, rawBody } = azureRequest
+            const { rawBody } = azureRequest
+            const body = this.parseRequestBody(rawBody, this.getHeaderValue(azureRequest.headers, 'Content-Type'), this.logger);
             // ssl_check (for Slash Commands)
             if (typeof body !== 'undefined' &&
                 body != null &&
@@ -116,6 +118,28 @@ class AzureReceiver {
             }
             return { statusCode: 404, body: '' };
         };
+    }
+    // eslint-disable-next-line class-methods-use-this
+    parseRequestBody(stringBody, contentType, logger) {
+        if (contentType === 'application/x-www-form-urlencoded') {
+            const parsedBody = querystring_1.parse(stringBody);
+            if (typeof parsedBody.payload === 'string') {
+                return JSON.parse(parsedBody.payload);
+            }
+            return parsedBody;
+        }
+        if (contentType === 'application/json') {
+            return JSON.parse(stringBody);
+        }
+        logger.warn(`Unexpected content-type detected: ${contentType}`);
+        try {
+            // Parse this body anyway
+            return JSON.parse(stringBody);
+        }
+        catch (e) {
+            logger.error(`Failed to parse body as JSON data for content-type: ${contentType}`);
+            throw e;
+        }
     }
     // eslint-disable-next-line class-methods-use-this
     isValidRequestSignature(signingSecret, body, signature, requestTimestamp) {
