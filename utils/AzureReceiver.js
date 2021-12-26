@@ -1,6 +1,6 @@
 "use strict";
 const logger_1 = require("@slack/logger");
-const crypto_1 = require("crypto");
+const forge_1 = require("node-forge")
 const tsscmp_1 = require("tsscmp");
 const errors_1 = require("@slack/bolt");
 /*
@@ -128,10 +128,11 @@ class AzureReceiver {
         if (requestTimestamp < fiveMinutesAgo) {
             return false;
         }
-        const hmac = crypto_1.createHmac('sha256', signingSecret);
+        const hmac = forge_1.hmac.create();
+        hmac.start('sha256', signingSecret)
         const [version, hash] = signature.split('=');
         hmac.update(`${version}:${requestTimestamp}:${body}`);
-        if (!tsscmp_1(hash, hmac.digest('hex'))) {
+        if (!tsscmp_1(hash, hmac.digest().toHex())) {
             return false;
         }
         return true;

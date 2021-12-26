@@ -10,7 +10,8 @@
   "dependencies": {
     "@slack/bolt": "^3.8.1",
     "azure-functions-core-tools": "3",
-    "mongodb": "^4.2.2"
+    "mongodb": "^4.2.2",
+    "node-forge": "^0.10.0"
   },
   "devDependencies": {
     "ngrok": "^4.2.2"
