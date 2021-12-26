@@ -100,3 +100,4 @@ __azurite_db*__.json
 
 # function for internal testing
 testtrigger
+yarn.lock
