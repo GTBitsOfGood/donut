@@ -1,13 +1,7 @@
 const { getNextDay } = require('../utils/utils')
 const mongo = require('./index')
 
-const registerChannel = async ({
-    workspaceId,
-    channelId,
-    pollingDay = '1',
-    pairingDay = '3',
-    frequency = 1
-}) => {
+const registerChannel = async ({ workspaceId, channelId, pollingDay = '1', pairingDay = '3', frequency = 1 }) => {
     const db = await mongo()
     const { acknowledged } = await db.collection('channels').insertOne({
         workspaceId,
@@ -15,7 +9,7 @@ const registerChannel = async ({
         pollingDay,
         pairingDay,
         frequency,
-        endDate: new Date()
+        endDate: new Date(),
     })
     return acknowledged
 }
@@ -41,27 +35,30 @@ const updateChannel = async (channelId, updatedDocument, logger) => {
     logger.info(nextPollingDate)
     updatedDocument = {
         ...updatedDocument,
-        nextPollingDate: nextPollingDate > endDate ? null : nextPollingDate
+        nextPollingDate: nextPollingDate > endDate ? null : nextPollingDate,
     }
     const { acknowledged } = await db.collection('channels').updateOne({ channelId }, { $set: updatedDocument })
     return acknowledged
 }
 
-const findChannelsToBePolled = async day => {
+const findChannelsToBePolled = async (day) => {
     const db = await mongo()
-    const cleanedDay = new Date(day.toISOString().split('T')[0]);
+    const cleanedDay = new Date(day.toISOString().split('T')[0])
     const result = await db.collection('channels').find({ nextPollingDate: cleanedDay }).toArray()
     return result
 }
 
-const updateNextPollDate = async registration => {
+const updateNextPollDate = async (registration) => {
     const db = await mongo()
     const { _id, frequency, nextPollingDate, endDate } = registration
     nextPollingDate.setDate(nextPollingDate.getDate() + frequency * 7)
     if (nextPollingDate > endDate) return true
-    const { acknowledged } = await db.collection('channels').updateOne({ _id }, {
-        $set: { nextPollingDate }
-    })
+    const { acknowledged } = await db.collection('channels').updateOne(
+        { _id },
+        {
+            $set: { nextPollingDate },
+        },
+    )
     return acknowledged
 }
 
@@ -71,5 +68,5 @@ module.exports = {
     findChannel,
     findChannelsToBePolled,
     updateChannel,
-    updateNextPollDate
+    updateNextPollDate,
 }
