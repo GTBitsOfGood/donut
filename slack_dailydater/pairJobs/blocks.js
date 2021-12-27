@@ -31,7 +31,7 @@ const pairingBlock = (persons) => {
             elements: [
                 {
                     type: 'plain_text',
-                    text: `${randomHeartEmoji} Thanks for reacting!`,
+                    text: `${randomHeartEmoji()} Thanks for reacting!`,
                     emoji: true,
                 },
             ],
@@ -42,9 +42,8 @@ const pairingBlock = (persons) => {
         {
             type: 'section',
             text: {
-                type: 'plain_text',
+                type: 'mrkdwn',
                 text: pairsText,
-                emoji: true,
             },
         },
         {

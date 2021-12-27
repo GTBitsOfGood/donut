@@ -23,10 +23,18 @@ const pollChannels = async (app, day) => {
  */
 const poll = async (app, channel) => {
     const pairingDate = getNextDay(new Date(), channel.pairingDay)
+    const prettyPairingDate = pairingDate.toISOString().split('T')[0]
     const pollingDate = new Date().toISOString().split('T')[0]
 
     // 1. Send a polling message into the channel
-    const { ts } = await postSlackBlockMessage(app, channel.channelId, pollMessageBlock(pollingDate, pairingDate))
+    const { ts } = await postSlackBlockMessage(
+        app,
+        channel.channelId,
+        pollMessageBlock(pollingDate, prettyPairingDate),
+        {
+            text: 'Donut Date polling message! React to join!',
+        },
+    )
     // 2. Make a job related to the outstanding poll
     const jobPromise = makeJob({
         workspaceId: channel.workspaceId,

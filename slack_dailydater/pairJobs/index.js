@@ -35,11 +35,15 @@ const pair = async (app, job) => {
 
     // 2. Send the pairing message
     if (reactedUsers.size <= 1) {
-        await postSlackBlockMessage(app, channel, failedPairingBlock())
+        await postSlackBlockMessage(app, channel, failedPairingBlock(), {
+            text: 'There are no donut dates for this week :cry:',
+        })
         return
     }
     const randomOrdering = shuffleArray(Array.from(reactedUsers))
-    await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering))
+    await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering), {
+        text: 'Donut date pairs have been made! Check Slack to see yours!',
+    })
 }
 
 module.exports = pairJobs

@@ -47,7 +47,7 @@ const randomHeartEmoji = () => {
         '',
     ]
     const random = COLORS[Math.floor(Math.random() * COLORS.length)]
-    return random ? ':heart:' : `:${random}_heart`
+    return random ? `:${random}_heart:` : ':heart:'
 }
 
 module.exports = {
