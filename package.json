@@ -5,7 +5,8 @@
   "scripts": {
     "start": "func start --port 8080",
     "test": "echo \"No tests yet...\"",
-    "local": "ngrok http 8080"
+    "local": "ngrok http 8080",
+    "lint": "eslint --fix --ext .js,.ts,.tsx ."
   },
   "dependencies": {
     "@slack/bolt": "^3.8.1",
@@ -13,6 +14,10 @@
     "mongodb": "^4.2.2"
   },
   "devDependencies": {
-    "ngrok": "^4.2.2"
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "ngrok": "^4.2.2",
+    "prettier": "^2.5.1"
   }
 }

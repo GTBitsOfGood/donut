@@ -6,21 +6,21 @@ const makeJob = async ({ workspaceId, channelId, messageTimestamp, pairingDate }
         workspaceId,
         channelId,
         messageTimestamp,
-        pairingDate
+        pairingDate,
     })
     return acknowledged
 }
 
-const findJobsToBePaired = async day => {
+const findJobsToBePaired = async (day) => {
     const db = await mongo()
-    const cleanedDay = new Date(day.toISOString().split('T')[0]);
+    const cleanedDay = new Date(day.toISOString().split('T')[0])
     const result = await db.collection('jobs').find({ pairingDate: cleanedDay }).toArray()
     return result
 }
 
 const deleteTodaysJobs = async (day = new Date()) => {
     const db = await mongo()
-    const cleanedDay = new Date(day.toISOString().split('T')[0]);
+    const cleanedDay = new Date(day.toISOString().split('T')[0])
     const { acknowledged } = await db.collection('jobs').deleteMany({ pairingDate: cleanedDay })
     return acknowledged
 }
@@ -28,5 +28,5 @@ const deleteTodaysJobs = async (day = new Date()) => {
 module.exports = {
     makeJob,
     findJobsToBePaired,
-    deleteTodaysJobs
+    deleteTodaysJobs,
 }
