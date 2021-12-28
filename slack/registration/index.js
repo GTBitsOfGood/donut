@@ -1,4 +1,5 @@
 const { registerChannel, unregisterChannel } = require('../../db/channels')
+const { registrationBlock, unregisterBlock } = require('./blocks')
 
 const setupRegistration = (app) => {
     app.event('member_joined_channel', async ({ event, client, logger }) => {
@@ -29,7 +30,10 @@ const register = async (event, client) => {
     // message
     await client.chat.postMessage({
         channel: event.channel,
-        text: ack ? `I am here! 🎉 Go configure donut dates by using the /date-config command` : 'fail',
+        blocks: ack ? registrationBlock() : undefined,
+        text: ack
+            ? `Donut Dates have been added to this channel! Configure me using the /date-config command!`
+            : 'Something went wrong when registering this channel. Please try readding me again later.',
     })
 }
 
@@ -40,9 +44,10 @@ const unregister = async (event, client) => {
     // send a message announcing that messages are gone
     await client.chat.postMessage({
         channel: event.channel,
+        blocks: ack ? unregisterBlock() : undefined,
         text: ack
-            ? `I have been removed from the channel! 🎉 All future donut dates for this channel have been cancelled.`
-            : 'failed removal',
+            ? `Donut Dates have been removed from this channel!`
+            : 'Something went wrong when removing this channel. Please try readd and remove me later.',
     })
 }
 

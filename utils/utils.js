@@ -33,7 +33,6 @@ const postSlackBlockMessage = async (app, channel, blocks, options = {}) =>
 
 const randomHeartEmoji = () => {
     const COLORS = [
-        'two',
         'gift',
         'black',
         'white',

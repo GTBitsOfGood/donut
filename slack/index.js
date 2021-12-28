@@ -2,6 +2,7 @@ const { App } = require('@slack/bolt')
 const { AzureReceiver } = require('../utils/AzureReceiver')
 const config = require('../utils/config')
 const dateConfig = require('./date-config')
+const dateStatus = require('./date-status')
 const appHome = require('./home')
 const registration = require('./registration')
 
@@ -17,6 +18,7 @@ const app = new App({
 
 registration(app)
 dateConfig(app)
+dateStatus(app)
 appHome(app)
 
 module.exports = async function (context, req) {
