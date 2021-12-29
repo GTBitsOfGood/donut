@@ -41,7 +41,7 @@ Other directories:
 
 ## Database
 
-MongoDB (CosmosDB on Azure) database backend. No Mongoose used, only pure mongodb schema validations. Collections:
+MongoDB (CosmosDB on Azure) database backend. Schema validation need to be made still. Collections:
 
 * `channels`: The channels that the bot is registered in
     * `_id`
@@ -70,6 +70,8 @@ Additionally, this function will query for all outstanding jobs, checking to see
 
 The jobs for that day are then deleted off the database.
 
+Polling messages sent will be pinned. Pairing messages sent will unpin everything else and pin itself.
+
 ### slack (HTTP Trigger)
 
 This function is the normal handler for all Slack events. The way that Slack bots typically work is through a listener format -- e.g. "listen for the message 'hello' and do something; listen for a slash command and do something, etc.".
@@ -80,11 +82,8 @@ There are only a number of things that we need to listen to currently:
 2. Removing the bot from a channel: This is the opposite of (1). This removes the channel from the db, eliminates all jobs, and sends a message acknowledging successful removal.
 3. Home modal interaction: This will be where instructions for bot use need to be made.
 4. /date-config: This slash command configures a date bot for the given channel it is called in.
+5. /date-status: This slash command gives a preview into the configuration and displays the next pairing and polling dates, if applicable.
 
 ## Future Expansions
 
 Custom times for pairing functions is possible with a TimerTrigger Azure Functions implementation (just run the function every 15/30/60 minutes instead of once daily), but it might be better/more cost effective to move to a event queue (Azure Queue Storage) or logic system (Azure Logic Apps) implementation. From a user perspective, it's already kind of annoying to set days, so its probably better just not implement custom times.
-
-There are more complicated versions of BoG slackbots floating around (see https://github.com/hack4impact/slack-bot), and the original implementation was centered around scalability and the potential to add a lot of different plugins to a single bot.
-
-Such an implementation is simple to set up in the `Slack` directory, but more requirements are needed to justify a more complicated implementation.

@@ -1,5 +1,6 @@
 const { findChannelsToBePolled, updateNextPollDate } = require('../../db/channels')
 const { makeJob } = require('../../db/jobs')
+const { addPin } = require('../../utils/pins')
 const { getNextDay, postSlackBlockMessage } = require('../../utils/utils')
 const pollMessageBlock = require('./block')
 
@@ -35,6 +36,7 @@ const poll = async (app, channel) => {
             text: 'Donut Date polling message! React to join!',
         },
     )
+    await addPin(app, channel.channelId, ts)
     // 2. Make a job related to the outstanding poll
     const jobPromise = makeJob({
         workspaceId: channel.workspaceId,

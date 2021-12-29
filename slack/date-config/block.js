@@ -1,3 +1,5 @@
+const { getNextDay } = require('../../utils/utils')
+
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const daysToOptions = DAYS.map((day, i) => {
     return {
@@ -22,6 +24,11 @@ const freqsToOptions = FREQS.map((freq, i) => {
 })
 
 const dateConfigBlock = (channelName, { pollingDay = 1, pairingDay = 3, frequency = 1, endDate = new Date() } = {}) => {
+    const nextPollingDate = getNextDay(new Date(), pollingDay)
+    const pollingDateText =
+        nextPollingDate < endDate ? nextPollingDate.toISOString().split('T')[0] : '(Polling date after end date!)'
+    const pairingDateText =
+        nextPollingDate < endDate ? getNextDay(nextPollingDate, pairingDay).toISOString().split('T')[0] : 'N/A'
     const parsedDate = endDate.toISOString().split('T')[0]
     return [
         {
@@ -94,7 +101,7 @@ const dateConfigBlock = (channelName, { pollingDay = 1, pairingDay = 3, frequenc
             block_id: 'enddate',
             text: {
                 type: 'mrkdwn',
-                text: 'When should the bot stop making pairings?',
+                text: 'When should the bot stop polling for dates?',
             },
             accessory: {
                 type: 'datepicker',
@@ -106,6 +113,15 @@ const dateConfigBlock = (channelName, { pollingDay = 1, pairingDay = 3, frequenc
                 },
                 action_id: 'date-config_action',
             },
+        },
+        {
+            type: 'context',
+            elements: [
+                {
+                    type: 'mrkdwn',
+                    text: `With this configuration, the next polling day will be ${pollingDateText} and the next pairing day will be ${pairingDateText}`,
+                },
+            ],
         },
     ]
 }

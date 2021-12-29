@@ -1,16 +1,29 @@
 const { getNextDay } = require('../utils/utils')
 const mongo = require('./index')
 
+const setup = async () => {
+    const db = await mongo()
+    await db.collection('channels').createIndex({ channelId: 1 }, { unique: true })
+}
+
+setup()
+
 const registerChannel = async ({ workspaceId, channelId, pollingDay = '1', pairingDay = '3', frequency = 1 }) => {
     const db = await mongo()
-    const { acknowledged } = await db.collection('channels').insertOne({
-        workspaceId,
-        channelId,
-        pollingDay,
-        pairingDay,
-        frequency,
-        endDate: new Date(),
-    })
+    const { acknowledged } = await db.collection('channels').updateOne(
+        { channelId },
+        {
+            $set: {
+                workspaceId,
+                channelId,
+                pollingDay,
+                pairingDay,
+                frequency,
+                endDate: new Date(),
+            },
+        },
+        { upsert: true },
+    )
     return acknowledged
 }
 
@@ -28,11 +41,10 @@ const findChannel = async ({ channelId }) => {
 }
 
 // updatedDocument: { pollingDay, pairingDay, frequency, endDate }
-const updateChannel = async (channelId, updatedDocument, logger) => {
+const updateChannel = async (channelId, updatedDocument) => {
     const db = await mongo()
     const { endDate, pollingDay } = updatedDocument
     const nextPollingDate = getNextDay(new Date(), pollingDay)
-    logger.info(nextPollingDate)
     updatedDocument = {
         ...updatedDocument,
         nextPollingDate: nextPollingDate > endDate ? null : nextPollingDate,

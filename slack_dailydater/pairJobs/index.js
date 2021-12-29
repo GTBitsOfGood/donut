@@ -1,5 +1,6 @@
 const { findJobsToBePaired } = require('../../db/jobs')
 const config = require('../../utils/config')
+const { removeAllPins, addPin } = require('../../utils/pins')
 const { postSlackBlockMessage, shuffleArray } = require('../../utils/utils')
 const { failedPairingBlock, pairingBlock } = require('./blocks')
 
@@ -34,6 +35,7 @@ const pair = async (app, job) => {
     })
 
     // 2. Send the pairing message
+    await removeAllPins(app, channel)
     if (reactedUsers.size <= 1) {
         await postSlackBlockMessage(app, channel, failedPairingBlock(), {
             text: 'There are no donut dates for this week :cry:',
@@ -41,9 +43,10 @@ const pair = async (app, job) => {
         return
     }
     const randomOrdering = shuffleArray(Array.from(reactedUsers))
-    await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering), {
+    const { ts } = await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering), {
         text: 'Donut date pairs have been made! Check Slack to see yours!',
     })
+    await addPin(app, channel, ts)
 }
 
 module.exports = pairJobs

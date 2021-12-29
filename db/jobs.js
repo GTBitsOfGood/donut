@@ -25,8 +25,15 @@ const deleteTodaysJobs = async (day = new Date()) => {
     return acknowledged
 }
 
+const findChannelJob = async (channelId) => {
+    const db = await mongo()
+    const result = await db.collection('jobs').findOne({ channelId })
+    return result
+}
+
 module.exports = {
     makeJob,
     findJobsToBePaired,
     deleteTodaysJobs,
+    findChannelJob,
 }
