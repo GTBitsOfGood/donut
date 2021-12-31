@@ -4,12 +4,18 @@ const querystring_1 = require('querystring')
 const crypto_1 = require('crypto')
 const tsscmp_1 = require('tsscmp')
 const errors_1 = require('@slack/bolt')
+const oauth_1 = require('@slack/oauth')
 /*
  * Receiver implementation for Azure functions apps
  */
 class AzureReceiver {
     constructor({
         signingSecret,
+        clientId,
+        clientSecret,
+        scopes = [],
+        installationStore,
+        stateSecret,
         logger = undefined,
         logLevel = logger_1.LogLevel.INFO,
         customPropertiesExtractor = () => ({}),
@@ -25,6 +31,21 @@ class AzureReceiver {
                       return defaultLogger
                   })()
         this.customPropertiesExtractor = customPropertiesExtractor
+        // If OAuth, then create an Install Provider
+        if (clientId !== undefined && clientSecret !== undefined) {
+            const installUrlOptions = {
+                scopes: scopes !== null && scopes !== void 0 ? scopes : [],
+            }
+            this.installer = new oauth_1.InstallProvider({
+                clientId,
+                clientSecret,
+                installationStore,
+                stateSecret,
+                logger,
+                logLevel,
+            })
+            this.installUrlOptions = installUrlOptions
+        }
     }
     init(app) {
         this.app = app
@@ -46,7 +67,7 @@ class AzureReceiver {
         })
     }
     toHandler() {
-        return async (azureRequest) => {
+        return async (azureContext = {}, azureRequest) => {
             var _a
             this.logger.debug(`Azure event: ${JSON.stringify(azureRequest, null, 2)}`)
             const { rawBody } = azureRequest
@@ -62,13 +83,15 @@ class AzureReceiver {
                 typeof body.ssl_check !== 'undefined' &&
                 body.ssl_check != null
             ) {
-                return Promise.resolve({ statusCode: 200, body: '' })
+                azureContext.res = { statusCode: 200, body: '' }
+                return Promise.resolve(azureContext.res)
             }
             // request signature verification
             const signature = this.getHeaderValue(azureRequest.headers, 'X-Slack-Signature')
             const ts = Number(this.getHeaderValue(azureRequest.headers, 'X-Slack-Request-Timestamp'))
             if (!this.isValidRequestSignature(this.signingSecret, rawBody, signature, ts)) {
-                return Promise.resolve({ statusCode: 401, body: '' })
+                azureContext.res = { statusCode: 401, body: '' }
+                return Promise.resolve(azureContext.res)
             }
             // url_verification (Events API)
             if (
@@ -78,11 +101,12 @@ class AzureReceiver {
                 body.type != null &&
                 body.type === 'url_verification'
             ) {
-                return Promise.resolve({
+                azureContext.res = {
                     statusCode: 200,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ challenge: body.challenge }),
-                })
+                }
+                return Promise.resolve(azureContext.res)
             }
             // Setup ack timeout warning
             let isAcknowledged = false
@@ -118,20 +142,24 @@ class AzureReceiver {
                 await ((_a = this.app) === null || _a === void 0 ? void 0 : _a.processEvent(event))
                 if (storedResponse !== undefined) {
                     if (typeof storedResponse === 'string') {
-                        return { statusCode: 200, body: storedResponse }
+                        azureContext.res = { statusCode: 200, body: storedResponse }
+                        return azureContext.res
                     }
-                    return {
+                    azureContext.res = {
                         statusCode: 200,
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(storedResponse),
                     }
+                    return azureContext.res
                 }
             } catch (err) {
                 this.logger.error('An unhandled error occurred while Bolt processed an event')
                 this.logger.debug(`Error details: ${err}, storedResponse: ${storedResponse}`)
-                return { statusCode: 500, body: 'Internal server error' }
+                azureContext.res = { statusCode: 500, body: 'Internal server error' }
+                return azureContext.res
             }
-            return { statusCode: 404, body: '' }
+            azureContext.res = { statusCode: 404, body: '' }
+            return azureContext.res
         }
     }
     // eslint-disable-next-line class-methods-use-this

@@ -1,5 +1,3 @@
-const config = require('./config')
-
 /**
  * returns date object of next day of the week. timezone automatically gmt 0
  * @param {Date} from the day calculated from
@@ -25,7 +23,6 @@ const shuffleArray = (array) => {
 
 const postSlackBlockMessage = async (app, channel, blocks, options = {}) =>
     await app.client.chat.postMessage({
-        token: config.botToken,
         channel,
         blocks,
         ...options,
@@ -41,12 +38,15 @@ const randomHeartEmoji = () => {
         'green',
         'yellow',
         'blue',
+        'two',
         'revolving',
         'sparkling',
         '',
     ]
     const random = COLORS[Math.floor(Math.random() * COLORS.length)]
-    return random ? `:${random}_heart:` : ':heart:'
+    let emoji = random ? `:${random}_heart` : ':heart'
+    emoji += random === 'two' || random === 'revolving' ? 's:' : ':'
+    return emoji
 }
 
 module.exports = {

@@ -1,12 +1,17 @@
 const { App } = require('@slack/bolt')
 const { deleteTodaysJobs } = require('../db/jobs')
+const { installationStore } = require('../db/tokens')
 const config = require('../utils/config')
 const pairJobs = require('./pairJobs')
 const pollChannels = require('./pollChannels')
 
 const app = new App({
     signingSecret: config.slack.signingSecret,
-    token: config.slack.botToken,
+    clientId: config.slack.clientId,
+    clientSecret: config.slack.clientSecret,
+    stateSecret: config.slack.stateSecret,
+    scopes: config.slack.scopes,
+    installationStore: installationStore,
 })
 
 module.exports = async function () {

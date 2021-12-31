@@ -1,15 +1,13 @@
-const config = require('./config')
-
-const addPin = async (app, channel, timestamp) =>
+const addPin = async (app, channel, timestamp, token) =>
     await app.client.pins.add({
-        token: config.slack.botToken,
+        token,
         channel,
         timestamp,
     })
 
-const removeAllPins = async (app, channel) => {
+const removeAllPins = async (app, channel, token) => {
     const { items } = await app.client.pins.list({
-        token: config.slack.botToken,
+        token,
         channel,
     })
     const unpinPromises = []
@@ -17,7 +15,7 @@ const removeAllPins = async (app, channel) => {
         const timestamp = items[i].message ? items[i].message.ts : items[i].file.timestamp
         unpinPromises.push(
             app.client.pins.remove({
-                token: config.slack.botToken,
+                token,
                 channel,
                 timestamp,
             }),

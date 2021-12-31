@@ -84,6 +84,10 @@ There are only a number of things that we need to listen to currently:
 4. /date-config: This slash command configures a date bot for the given channel it is called in.
 5. /date-status: This slash command gives a preview into the configuration and displays the next pairing and polling dates, if applicable.
 
+### slack_oauth
+
+If you would like to install this app onto your own workspace, there exists a `slack_oauth` endpoint as well. This is an anonymous Azure Functions that completes the oauth process for Slack to add the bot into other workspaces. If this endpoint is hit raw (by a user), it will redirect them to the install url for this application.
+
 ## Future Expansions
 
 Custom times for pairing functions is possible with a TimerTrigger Azure Functions implementation (just run the function every 15/30/60 minutes instead of once daily), but it might be better/more cost effective to move to a event queue (Azure Queue Storage) or logic system (Azure Logic Apps) implementation. From a user perspective, it's already kind of annoying to set days, so its probably better just not implement custom times.
