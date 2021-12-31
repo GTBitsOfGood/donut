@@ -5,8 +5,10 @@
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "DB_NAME":"dater",
     "DB_URI":"mongodb://localhost:27017",
-    "SLACK_BOT_TOKEN":"",
     "SLACK_SIGNING_SECRET":"",
-    "SLACK_APP_ID":""
+    "SLACK_APP_ID":"",
+    "SLACK_CLIENT_ID":"",
+    "SLACK_CLIENT_SECRET":"",
+    "SLACK_STATE_SECRET":""
   }
 }

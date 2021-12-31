@@ -1,5 +1,6 @@
 const { findChannelsToBePolled, updateNextPollDate } = require('../../db/channels')
 const { makeJob } = require('../../db/jobs')
+const { fetchInstallation } = require('../../db/tokens')
 const { addPin } = require('../../utils/pins')
 const { getNextDay, postSlackBlockMessage } = require('../../utils/utils')
 const pollMessageBlock = require('./block')
@@ -27,6 +28,10 @@ const poll = async (app, channel) => {
     const prettyPairingDate = pairingDate.toISOString().split('T')[0]
     const pollingDate = new Date().toISOString().split('T')[0]
 
+    // 0. Get the token for this workspace
+    const installation = await fetchInstallation({ teamId: channel.workspaceId })
+    const bot_token = installation.bot.token
+
     // 1. Send a polling message into the channel
     const { ts } = await postSlackBlockMessage(
         app,
@@ -34,9 +39,10 @@ const poll = async (app, channel) => {
         pollMessageBlock(pollingDate, prettyPairingDate),
         {
             text: 'Donut Date polling message! React to join!',
-        },
+            token: bot_token,
+        }
     )
-    await addPin(app, channel.channelId, ts)
+    await addPin(app, channel.channelId, ts, bot_token)
     // 2. Make a job related to the outstanding poll
     const jobPromise = makeJob({
         workspaceId: channel.workspaceId,
