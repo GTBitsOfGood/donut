@@ -45,14 +45,14 @@ const pair = async (app, job) => {
     await removeAllPins(app, channel, bot_token)
     if (reactedUsers.size <= 1) {
         await postSlackBlockMessage(app, channel, failedPairingBlock(), {
-            text: 'There are no donut dates for this week :cry:',
+            text: 'There are no dates for this week :cry:',
             token: bot_token,
         })
         return
     }
     const randomOrdering = shuffleArray(Array.from(reactedUsers))
     const { ts } = await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering), {
-        text: 'Donut date pairs have been made! Check Slack to see yours!',
+        text: 'Pairs have been made for this cycle! Check Slack to see yours!',
         token: bot_token,
     })
     await addPin(app, channel, ts, bot_token)
