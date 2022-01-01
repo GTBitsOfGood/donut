@@ -36,11 +36,13 @@ const poll = async (app, channel) => {
     const { ts } = await postSlackBlockMessage(
         app,
         channel.channelId,
-        pollMessageBlock(pollingDate, prettyPairingDate),
+        pollMessageBlock(pollingDate, prettyPairingDate, channel.emoji),
         {
-            text: 'Donut Date polling message! React to join!',
+            text: `${
+                channel.emoji ? channel.emoji.charAt(0).toUpperCase() + channel.emoji.slice(1) : 'Donut'
+            } Date polling message! React to join!`,
             token: bot_token,
-        }
+        },
     )
     await addPin(app, channel.channelId, ts, bot_token)
     // 2. Make a job related to the outstanding poll

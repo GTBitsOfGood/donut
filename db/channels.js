@@ -44,7 +44,10 @@ const findChannel = async ({ channelId }) => {
 const updateChannel = async (channelId, updatedDocument) => {
     const db = await mongo()
     const { endDate, pollingDay } = updatedDocument
-    const nextPollingDate = getNextDay(new Date(), pollingDay)
+    // offset because matches are made at utc and est is -5 hours
+    const now = new Date()
+    now.setHours(now.getHours() - 5)
+    const nextPollingDate = getNextDay(now, pollingDay)
     updatedDocument = {
         ...updatedDocument,
         nextPollingDate: nextPollingDate > endDate ? null : nextPollingDate,
