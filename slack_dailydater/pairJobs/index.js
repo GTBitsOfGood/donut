@@ -1,3 +1,4 @@
+const { findChannelById } = require('../../db/channels')
 const { findJobsToBePaired } = require('../../db/jobs')
 const { fetchInstallation } = require('../../db/tokens')
 const { removeAllPins, addPin } = require('../../utils/pins')
@@ -19,8 +20,9 @@ const pairJobs = async (app, day) => {
  * @param {*} job
  */
 const pair = async (app, job) => {
+    const { workspaceId, channelId, groupSize } = await findChannelById(job.channelKey)
     // 0. Get the token for this workspace's bot
-    const installation = await fetchInstallation({ teamId: job.workspaceId })
+    const installation = await fetchInstallation({ teamId: workspaceId })
     const bot_token = installation.bot.token
 
     // 1. Find everyone who reacted to the message
@@ -30,7 +32,7 @@ const pair = async (app, job) => {
     } = await app.client.reactions.get({
         token: bot_token,
         timestamp: job.messageTimestamp,
-        channel: job.channelId,
+        channel: channelId,
     })
 
     const reactedUsers = new Set()
@@ -51,7 +53,7 @@ const pair = async (app, job) => {
         return
     }
     const randomOrdering = shuffleArray(Array.from(reactedUsers))
-    const { ts } = await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering), {
+    const { ts } = await postSlackBlockMessage(app, channel, pairingBlock(randomOrdering, groupSize), {
         text: 'Pairs have been made for this cycle! Check Slack to see yours!',
         token: bot_token,
     })

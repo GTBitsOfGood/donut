@@ -47,10 +47,11 @@ const poll = async (app, channel) => {
     await addPin(app, channel.channelId, ts, bot_token)
     // 2. Make a job related to the outstanding poll
     const jobPromise = makeJob({
-        workspaceId: channel.workspaceId,
-        channelId: channel.channelId,
+        // workspaceId: channel.workspaceId,
+        // channelId: channel.channelId,
         messageTimestamp: ts,
         pairingDate,
+        channelKey: channel._id
     })
     // 3. Update the next poll date
     const updatePollDatePromise = updateNextPollDate(channel)

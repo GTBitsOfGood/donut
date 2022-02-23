@@ -11,13 +11,22 @@ const failedPairingBlock = () => [
     },
 ]
 
-const pairingBlock = (persons) => {
+const pairingBlock = (persons, pairLength = 2) => {
     let pairsText = ''
-    for (let i = 0; i < persons.length - 1; i += 2) {
+    let i = 0
+    for (i; i < persons.length - 1; i += pairLength) {
         if (i !== 0) pairsText += '\n'
-        pairsText += `• <@${persons[i]}> <> <@${persons[i + 1]}>`
+        pairsText += '• '
+        for (let j = 0; j < pairLength - 1; j++) pairsText += `<@${persons[i + j]}> <> `
+        pairsText += `<@${persons[i + 1]}>`
     }
-    if (persons.length % 2 !== 0) pairsText += ` <> <@${persons[persons.length - 1]}>`
+    if (persons.length % pairLength == 1) pairsText += ` <> <@${persons[persons.length - 1]}>`
+    else {
+        pairsText += '\n'
+        pairsText += '• '
+        for (i -= pairLength; i < persons.length - 1; i++) pairsText += `<@${persons[i]}> <> `
+        pairsText += `<@${persons[i + 1]}>`
+    }
     return [
         {
             type: 'section',

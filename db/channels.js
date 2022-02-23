@@ -40,7 +40,13 @@ const findChannel = async ({ channelId }) => {
     return result
 }
 
-// updatedDocument: { pollingDay, pairingDay, frequency, endDate }
+const findChannelById = async (_id) => {
+    const db = await mongo()
+    const result = await db.collection('channels').findOne({ _id })
+    return result
+}
+
+// updatedDocument: { pollingDay, pairingDay, frequency, endDate, ...other fields }
 const updateChannel = async (channelId, updatedDocument) => {
     const db = await mongo()
     const { endDate, pollingDay } = updatedDocument
@@ -81,6 +87,7 @@ module.exports = {
     registerChannel,
     unregisterChannel,
     findChannel,
+    findChannelById,
     findChannelsToBePolled,
     updateChannel,
     updateNextPollDate,

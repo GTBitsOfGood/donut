@@ -52,12 +52,14 @@ MongoDB (CosmosDB on Azure) database backend. Schema validation need to be made 
     * `nextPollingDate`: date for next day of polls
     * `endDate`: date to stop polling
     * `frequency`: number representing weeks between pairings in this channel (i.e. 1 represents weekly pairings, 2 represents biweekly, etc.)
+    * `groupSize`: number representing how many people should be paired together
 * `jobs`: The outstanding pairing messages that have yet to be resolved
     * `_id`
-    * `workspaceId`: id of the workspace
+    * `workspaceId`: id of the workspace (DEPRECATED, use FK)
     * `messageTimestamp`: timestamp of the original pairing message sent, used for slack's API
-    * `channelId`: id of the channel the original pairing message was sent in
+    * `channelId`: id of the channel the original pairing message was sent in (DEPRECATED, use FK)
     * `pairingDate`: date which pairings for this job will be made.
+    * `channelRegistrationId`: FK representing the channels document this is associated with
 
 
 ## Functions:
