@@ -21,7 +21,9 @@ module.exports = async function () {
     // todo: wrap in a try catch block and throw errors within each method
     await pollChannels(app, cleanedDay)
     await pairJobs(app, cleanedDay)
-    await deleteTodaysJobs(cleanedDay)
+    const MS_IN_WEEK = 7 * 24 * 60 * 60 * 1000
+    const lastWeek = new Date(cleanedDay.getTime() - MS_IN_WEEK)
+    await deleteTodaysJobs(lastWeek) // delete jobs from a week ago or later, so troubleshooting is easier
 
     // if (myTimer.isPastDue)
     // {
